@@ -2,6 +2,8 @@
 
 ## Overview
 
+This project shows the design and deployment of a scalable containerized application on AWS using IaC and CI/CD automation.
+
 ## Architecture
 
 ## Technologies
