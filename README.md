@@ -8,7 +8,7 @@
 
 ## How It Works
 
-#### Terraform
+## Terraform
 
 ## CI/CD Pipeline
 
@@ -17,7 +17,6 @@
 ## Design Decisions
 
 ## Status
-In progress:
 - [x] Project design
 - [ ] Terraform infrastructure
 - [ ] Docker containerization
