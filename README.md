@@ -1,10 +1,16 @@
-# AWS Containerized Scalable Application
+# AWS Containerized Application
 
 ## Overview
 
-This project shows the design and deployment of a scalable containerized application on AWS using IaC and CI/CD automation.
+This project is a hands-on implementation of a cloud architecture in AWS.
+The goal is to build a small but realistic environment with proper networking, containerized workloads, and automated deployments using Terraform and CI/CD.
 
 ## Architecture
+The infrastructure is deployed inside a custom VPC.
+
+- Public subnets are used for internet-facing components
+- Private subnets are used for internal services
+- A NAT Gateway allows private resources to access the internet when needed
 
 ## Technologies
 
@@ -13,8 +19,6 @@ This project shows the design and deployment of a scalable containerized applica
 ## Terraform
 
 ## CI/CD Pipeline
-
-## Security
 
 ## Design Decisions
 
