@@ -3,6 +3,7 @@
 ## Overview
 
 This project is a hands-on implementation of a cloud architecture in AWS.
+
 The goal is to build a small but realistic environment with proper networking, containerized workloads, and automated deployments using Terraform and CI/CD.
 
 ## Architecture
