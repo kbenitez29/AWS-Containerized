@@ -23,7 +23,8 @@ The infrastructure is deployed inside a custom VPC.
 ## CI/CD Pipeline
 
 ## Design Decisions
-
+- A NAT Gateway is used so that private resources can access the internet without being publicly exposed.
+- 
 ## Status
 - [x] Project design
 - [ ] Terraform infrastructure
