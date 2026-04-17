@@ -12,6 +12,7 @@ The infrastructure is deployed inside a custom VPC.
 - Public subnets are used for internet-facing components
 - Private subnets are used for internal services
 - A NAT Gateway allows private resources to access the internet when needed
+- Public subnets are associated with a route table that allows outbound internet access through an Internet Gateway.
 
 ## Technologies
 
