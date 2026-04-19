@@ -19,7 +19,7 @@ resource "aws_internet_gateway" "igw"{
 
 resource "aws_subnet" "public" {
     vpc_id = aws_vpc.main.id
-    count = lenght(var.public_subnets) # Give the length of the var
+    count = length(var.public_subnets) # Give the length of the var
     cidr_block = var.public_subnets[count.index] # Maps the var in main.tf in each iteration
     map_public_ip_on_launch = true
 
@@ -30,7 +30,7 @@ resource "aws_subnet" "public" {
 
 resource "aws_subnet" "private" {
     vpc_id = aws_vpc.main.id
-    count = lenght(var.private_subnets) # Give the length of the var
+    count = length(var.private_subnets) # Give the length of the var
     cidr_block = var.private_subnets[count.index] # Map the var in main.tf in each iteration
     map_public_ip_on_launch = false
 
@@ -47,14 +47,14 @@ resource "aws_route_table" "public" {
 # You set up the rules in the route table (here you define the igw routing)
 resource "aws_route" "public_access"{
     route_table_id = aws_route_table.public.id
-    destination_cidr_block = "0.0.0.0/"
+    destination_cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
 }
 
 
 # Before this you just have separated things, you need to put it together to make it work
 resource "aws_route_table_association" "route_internet_bind" {
-    count = lenght(aws_subnet.public)
+    count = length(aws_subnet.public)
     subnet_id = aws_subnet.public[count.index].id
     route_table_id = aws_route_table.public.id
 }
@@ -80,15 +80,15 @@ resource "aws_route_table" "private" {
 }
 
 resource "aws_route" "private_access" {
-    route_table_id = aws_route_table.public.id
+    route_table_id = aws_route_table.private.id
 
     # In this time the internet access is given by the Nat
-    destination_cidr_block = "0.0.0.0/"
+    destination_cidr_block = "0.0.0.0/0"
     nat_gateway_id = aws_nat_gateway.nat.id
 }
 
 resource "aws_route_table_association" "route_private" {
-    count = lenght(aws_subnet.private)
+    count = length(aws_subnet.private)
     subnet_id = aws_subnet.private[count.index].id
     route_table_id = aws_route_table.private.id
 }
