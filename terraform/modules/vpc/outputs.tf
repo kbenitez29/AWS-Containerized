@@ -1,4 +1,13 @@
-# Exposing the values of main.tf of module vpc to the principal main.tf
+# Exposing the values of main.tf from VPC module to the principal main.tf
 output "private_subnets" {
   value = aws_subnet.private[*].id
+}
+
+output "public_subnets" {
+  value = aws_subnet.public[*].id
+}
+
+# Exposing VPC
+output "vpc_id" {
+  value = aws_vpc.main.id
 }

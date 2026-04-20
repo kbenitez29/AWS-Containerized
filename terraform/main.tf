@@ -36,7 +36,7 @@ resource "aws_iam_role" "ecs_execution_role"{
                 Action = "sts:AssumeRole"
                 Effect = "Allow"
                 Principal = {
-                    Service = "ecs-task.amazonaws.com" # ECS task is gonna assume the role
+                    Service = "ecs-tasks.amazonaws.com" # ECS task is gonna assume the role
                 }
             }
         ]
@@ -67,7 +67,7 @@ resource "aws_ecs_task_definition" "app"{
 
     container_definitions = jsonencode([
         {
-            name = "app"
+            name = "Greetings-ecs"
             image = aws_ecr_repository.app.repository_url
             essential = true # Default
 
@@ -81,7 +81,7 @@ resource "aws_ecs_task_definition" "app"{
     ])
 }
 
-# Creating the ECS service, responsible of keeping the stuff working
+# Creating the ECS service, responsible of keeping the stuff working, and binding it with the following created lb
 resource "aws_ecs_service" "app"{
 
     # Defining cluster and task
@@ -94,6 +94,89 @@ resource "aws_ecs_service" "app"{
 
     network_configuration {
         subnets = module.vpc.private_subnets # Giving all the private subnets (output)
+        security_groups = [aws_security_group.ecs_sg.id] # Connecting just with alb
         assign_public_ip = false
+    }
+
+    # Attaching the load balancer to the ecs service
+    load_balancer{
+        target_group_arn = aws_lb_target_group.app_target_group.arn
+        container_name = "Greetings-ecs"
+        container_port = 80
+    }
+}
+
+# Creating the ALB SG
+resource "aws_security_group" "alb_sg"{
+    name = "alb-sg"
+    description = "Allows http traffic in the ALB"
+    vpc_id = module.vpc.vpc_id
+
+    # Allowing HTTP
+    ingress {
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    # In order to let the "inside" establish a connection to the exterior
+    egress {
+        from_port = 0 # Map all the ports
+        to_port = 0
+        protocol = -1 # Map all the protocols
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+
+    tags = {
+        name = "alb_sg"
+    }
+}
+
+# Creating the ECS SG
+resource "aws_security_group" "ecs_sg" {
+  name   = "ecs-sg"
+  vpc_id = module.vpc.vpc_id
+
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.alb_sg.id]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+# Creating the application load balancer
+resource "aws_lb" "lb" {
+    name = "app-lb"
+    load_balancer_type = "application"
+    subnets = module.vpc.public_subnets # Defining it internet-facing
+    security_groups = [aws_security_group.alb_sg.id]
+}
+
+# Creating a basic target group, it checks the ecs inside the group
+resource "aws_lb_target_group" "app_target_group"{
+    name = "app-tg"
+    port = 80
+    protocol = "HTTP"
+    vpc_id = module.vpc.vpc_id
+    target_type = "ip" # Mandatory mode in Fargate
+}
+
+# Creating the listener to direct the traffic to the target group
+resource "aws_lb_listener" "app_listener"{
+    load_balancer_arn = aws_lb.lb.arn
+    port = 80
+    protocol = "HTTP"
+    default_action {
+        type = "forward" # forwards traffic to the proper target group
+        target_group_arn = aws_lb_target_group.app_target_group.arn
     }
 }
