@@ -2,6 +2,7 @@ provider "aws" {
     region = "eu-west-1"
 }
 
+# Inputs to the module
 module "vpc" {
     source = "./modules/vpc"
     vpc_cidr = "10.0.0.0/16"
@@ -56,6 +57,43 @@ resource "aws_ecs_cluster" "main"{
 # Creating the task definition, the blueprint of the service (defines mode, RAM, CPU, etc)
 resource "aws_ecs_task_definition" "app"{
     family = "app-task"
-    network_mode = "awsvpc"
+    network_mode = "awsvpc" # Each task (container) has its own IP
     requires_compatibilities = ["FARGATE"] # Could be EC2 or serverless like here
+
+    cpu = "256" # 1/4 of a vCPU
+    memory = "512" # MiB
+
+    execution_role_arn = aws_iam_role.ecs_execution_role.arn # Giving the role to the task
+
+    container_definitions = jsonencode([
+        {
+            name = "app"
+            image = aws_ecr_repository.app.repository_url
+            essential = true # Default
+
+            portMappings = [
+                {
+                    containerPort = 80
+                    hostPort = 80 # In awsvpc mode, container and host have the same port
+                }
+            ]
+        }
+    ])
+}
+
+# Creating the ECS service, responsible of keeping the stuff working
+resource "aws_ecs_service" "app"{
+
+    # Defining cluster and task
+    name = "app-service"
+    cluster = aws_ecs_cluster.main.id
+    task_definition = aws_ecs_task_definition.app.arn
+
+    desired_count = 1 # always at least 1 container up
+    launch_type = "FARGATE"
+
+    network_configuration {
+        subnets = module.vpc.private_subnets # Giving all the private subnets (output)
+        assign_public_ip = false
+    }
 }
