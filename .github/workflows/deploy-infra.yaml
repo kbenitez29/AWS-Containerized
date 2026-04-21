@@ -1,4 +1,4 @@
-name: Deploy Infra (En pausa)
+name: Deploy Infra
 
 on:
     push:
