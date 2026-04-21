@@ -28,7 +28,7 @@ jobs:
             --password-stdin ${{ vars.ECR_REPOSITORY_URI }}
 
       - name: Build Docker image
-        run: docker build -t my-app .
+        run: docker build -t my-app ./app
 
       - name: Tag image
         run: |
