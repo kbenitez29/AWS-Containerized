@@ -89,7 +89,7 @@ resource "aws_ecs_service" "app"{
     cluster = aws_ecs_cluster.main.id
     task_definition = aws_ecs_task_definition.app.arn
 
-    desired_count = 1 # always at least 1 container up
+    desired_count = 2 # always at least 2 containers up
     launch_type = "FARGATE"
 
     network_configuration {
