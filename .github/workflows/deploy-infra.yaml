@@ -1,10 +1,36 @@
 name: Deploy Infra (En pausa)
 
 on:
-  workflow_dispatch: # Manual run
-
+    push:
+        paths:
+            - "terraform/**"
+    workflow_dispatch: # Manual run
 jobs:
-  check:
+  deploy:
     runs-on: ubuntu-latest
+
     steps:
-      - run: echo "Este workflow está vacío todavía"
+      - name: Check the repo creating the VM
+        uses: actions/checkout@v6
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v5
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: eu-west-1
+
+      - name: Installs Terraform in the VM
+        uses: hashicorp/setup-terraform@v3
+  
+      - name: Terraform Init
+        run: terraform -chdir=terraform init
+  
+      - name: Terraform Validate the syntax
+        run: terraform -chdir=terraform validate
+  
+      - name: Terraform Plan
+        run: terraform -chdir=terraform plan
+  
+      - name: Terraform Apply
+        run: terraform -chdir=terraform apply -auto-approve # No interactive CI/CD
