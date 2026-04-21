@@ -16,7 +16,7 @@ def home():
         font-family: Arial, sans-serif;
     ">
         <h1 style="font-size: 4rem; color: #2c3e50;">
-            Greetings from ECS :)
+            Greetings from ECS CI/CD :)
         </h1>
     </div>
     """ # Defining the shown message
