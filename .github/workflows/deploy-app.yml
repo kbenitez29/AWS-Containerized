@@ -5,7 +5,7 @@ on:
         paths:
             - "app/**"
             - "Dockerfile"
-
+    workflow_dispatch: # Manual run
 jobs:
   deploy:
     runs-on: ubuntu-latest
