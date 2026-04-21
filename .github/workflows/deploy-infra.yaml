@@ -1,1 +1,10 @@
-name: Deploy infrastructure
+name: Deploy Infra (En pausa)
+
+on:
+  workflow_dispatch: # Manual run
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "Este workflow está vacío todavía"
