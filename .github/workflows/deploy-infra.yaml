@@ -24,7 +24,7 @@ jobs:
         uses: hashicorp/setup-terraform@v3
   
       - name: Terraform Init
-        run: terraform -chdir=terraform init
+        run: terraform -chdir=terraform init -reconfigure
   
       - name: Terraform Validate the syntax
         run: terraform -chdir=terraform validate
