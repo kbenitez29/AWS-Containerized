@@ -2,6 +2,17 @@ provider "aws" {
     region = "eu-west-1"
 }
 
+# Avoiding conflicts with the versions in the pipeline deploy uploading tfstate to s3
+terraform {
+  backend "s3" {
+    bucket         = "terraform-state-unique-id"
+    key            = "ecs/terraform.tfstate" # Path in s3 
+    region         = "eu-west-1"
+    dynamodb_table = "terraform-locks" # Avoiding 2 people at the same time
+    encrypt        = true
+  }
+}
+
 # Inputs to the module
 module "vpc" {
     source = "./modules/vpc"
