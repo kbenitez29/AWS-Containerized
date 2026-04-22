@@ -50,5 +50,18 @@ It exposes a single HTTP endpoint that returns a response confirming the service
 
 ## CI/CD Pipeline
 
-In construction
+The project includes two separate GitHub Actions workflows to handle application and infrastructure changes independently.
+
+### Application pipeline
+
+When changes are pushed to the application code or Dockerfile, a pipeline is triggered that builds a new Docker image and pushes it to Amazon ECR. After that, the ECS service is updated to force a new deployment.
+
+ECS performs a rolling update, meaning new containers are started before the old ones are stopped. This allows to have zero downtime in the application.
+
+### Infrastructure pipeline
+
+Infrastructure changes are handled through Terraform. Any modification inside the Terraform directory triggers a pipeline that runs `terraform init`, `plan`, and `apply`.
+
+Terraform state is stored remotely in S3 so that each pipeline run has a broad view of the infrastructure and avoids recreating existing resources.
+
 
